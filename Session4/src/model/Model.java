@@ -46,8 +46,20 @@ public class Model {
         this.y = y;
     }
 
+    public int getMidX() {
+        return x + width / 2;
+    }
+
+    public int getMidY() {
+        return y + height / 2;
+    }
+
+    public int getBottom() {
+        return y + height;
+    }
+
     public void move(int dx, int dy) {
-        this.setX(this.getX()+dx);
-        this.setY(this.getY()+dy);
+        this.setX(this.getX() + dx);
+        this.setY(this.getY() + dy);
     }
 }

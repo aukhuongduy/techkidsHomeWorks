@@ -4,28 +4,63 @@ import model.Model;
 import utils.Utils;
 import view.View;
 
+import java.awt.*;
 import java.util.Random;
+import java.util.Vector;
 
 /**
  * Created by Khuong Duy on 12/12/2016.
  */
 public class EnemyPlaneController extends Controller {
-    private static final int SPEED = 5;
+    private static final int SPEED = 2;
+    private static final int WIDTH = 50;
+    private static final int HEIGHT = 50;
+    private int timeCounter;
+
+    private Vector<EnemyBulletController> enemyBulletControllers;
+
 
     public EnemyPlaneController(Model model, View view) {
         super(model, view);
+        enemyBulletControllers = new Vector<>();
+        timeCounter = 0;
     }
 
+    @Override
     public void run() {
-        model.move(0, +2);
+        model.move(0, SPEED);
+        if (timeCounter > 50) {
+            adddBullet();
+            timeCounter =0;
+        }
+        timeCounter++;
+        for (EnemyBulletController e : enemyBulletControllers
+                ) {
+            e.run();
+        }
     }
 
-    public static EnemyPlaneController createEnemy() {
+    @Override
+    public void draw(Graphics g) {
+        super.draw(g);
+        for (EnemyBulletController e : enemyBulletControllers
+                ) {
+            e.draw(g);
+        }
+    }
+
+    private void adddBullet() {
+        EnemyBulletController enemyBulletController = EnemyBulletController.createBullet(this.getModel().getMidX() - EnemyBulletController.WIDTH / 2, this.getModel().getBottom());
+        enemyBulletControllers.add(enemyBulletController);
+    }
+
+    public static EnemyPlaneController createEnemy(int x, int y) {
         Random r = new Random();
-        EnemyPlaneController enemyPlaneController = new EnemyPlaneController(new Model(r.nextInt(750)+50, 0,50,50), new View(Utils.loadImage("resources/enemy-green-3.png")));
+        EnemyPlaneController enemyPlaneController = new EnemyPlaneController(new Model(x, y, WIDTH, HEIGHT), new View(Utils.loadImage("resources/enemy-green-3.png")));
         return enemyPlaneController;
     }
-    public Model getModel(){
+
+    public Model getModel() {
         return model;
     }
 }

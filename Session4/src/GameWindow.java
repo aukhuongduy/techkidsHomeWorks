@@ -1,4 +1,5 @@
 import controller.*;
+import controller.managers.EnemyControllerManager;
 import model.Model;
 import utils.Utils;
 import view.View;
@@ -23,8 +24,7 @@ public class GameWindow extends Frame implements Runnable {
     PlaneController plane1, plane2, enemy;
     Image background = Utils.loadImage("resources/background.png");
     Vector<BulletController> bulletControllers;
-    Vector<EnemyBulletController> enemyBullets;
-    Vector<EnemyPlaneController> enemyPlanes;
+    EnemyControllerManager enemyControllerManager;
     Random r = new Random();
     int count = 0;
 
@@ -43,8 +43,7 @@ public class GameWindow extends Frame implements Runnable {
 
         backBuffer = new BufferedImage(800, 600, BufferedImage.TYPE_INT_ARGB);
         bulletControllers = new Vector<>();
-        enemyBullets = new Vector<>();
-        enemyPlanes = new Vector<>();
+        enemyControllerManager = new EnemyControllerManager();
 
 
         setLocationRelativeTo(null);
@@ -114,22 +113,14 @@ public class GameWindow extends Frame implements Runnable {
         backBufferGraphics.drawImage(background, 0, 0, 800, 600, null);
         plane1.draw(backBufferGraphics);
         plane2.draw(backBufferGraphics);
-        if (enemyPlanes != null) {
-            for (EnemyPlaneController enemy : enemyPlanes
-                    ) {
-                enemy.draw(backBufferGraphics);
-            }
-        }
+        enemyControllerManager.draw(backBufferGraphics);
         if (bulletControllers != null) {
             for (BulletController bulletController : bulletControllers) {
                 bulletController.draw(backBufferGraphics);
+
             }
         }
-        if (enemyBullets != null) {
-            for (EnemyBulletController bullet : enemyBullets) {
-                bullet.draw(backBufferGraphics);
-            }
-        }
+
         g.drawImage(backBuffer, 0, 0, 800, 600, null);
     }
 
@@ -144,28 +135,7 @@ public class GameWindow extends Frame implements Runnable {
                         bulletController.run();
                     }
                 }
-                count++;
-                if (count == 80) {
-                    enemyPlanes.add(EnemyPlaneController.createEnemy());
-                    for (EnemyPlaneController e : enemyPlanes
-                         ) {
-                        enemyBullets.add(EnemyBulletController.createBullet(e));
-                    }
-
-                    count = 0;
-                }
-                if (enemyBullets != null) {
-                    for (EnemyBulletController bullet : enemyBullets
-                            ) {
-                        bullet.run();
-                    }
-                }
-                if (enemyPlanes != null) {
-                    for (EnemyPlaneController enemy : enemyPlanes
-                            ) {
-                        enemy.run();
-                    }
-                }
+                enemyControllerManager.run();
                 this.repaint();
                 Thread.sleep(17);
             } catch (InterruptedException e) {
