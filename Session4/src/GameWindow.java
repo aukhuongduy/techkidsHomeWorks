@@ -1,4 +1,6 @@
 import controller.*;
+import controller.managers.BodyManager;
+import controller.managers.BulletControllerManager;
 import controller.managers.EnemyControllerManager;
 import model.Model;
 import utils.Utils;
@@ -23,10 +25,10 @@ public class GameWindow extends Frame implements Runnable {
     BufferedImage backBuffer;
     PlaneController plane1, plane2, enemy;
     Image background = Utils.loadImage("resources/background.png");
-    Vector<BulletController> bulletControllers;
     EnemyControllerManager enemyControllerManager;
+    BulletControllerManager bulletControllerManager;
     Random r = new Random();
-    int count = 0;
+
 
     public GameWindow() {
         setTitle("Game 1945");
@@ -35,14 +37,10 @@ public class GameWindow extends Frame implements Runnable {
         setVisible(true);
 
         KeySetting keySetting1 = new KeySetting(KeyEvent.VK_UP, KeyEvent.VK_DOWN, KeyEvent.VK_LEFT, KeyEvent.VK_RIGHT);
-        KeySetting keySetting2 = new KeySetting(KeyEvent.VK_W, KeyEvent.VK_S, KeyEvent.VK_A, KeyEvent.VK_D);
-        KeySetting keySettingFire = new KeySetting(KeyEvent.VK_SPACE);
-        plane1 = PlaneController.createPlane(450, 450);
+        plane1 = PlaneController.createPlane(450, 450);//day anh
         plane1.setKeySetting(keySetting1);
-        plane2 = PlaneController.createPlane(300, 450);
-
         backBuffer = new BufferedImage(800, 600, BufferedImage.TYPE_INT_ARGB);
-        bulletControllers = new Vector<>();
+        bulletControllerManager = new BulletControllerManager();
         enemyControllerManager = new EnemyControllerManager();
 
 
@@ -92,11 +90,8 @@ public class GameWindow extends Frame implements Runnable {
             @Override
             public void keyPressed(KeyEvent e) {
                 plane1.keyPressed(e);
-                plane2.keyPressed(e);
                 if (e.getKeyCode() == KeyEvent.VK_SPACE) {
-                    BulletController bulletController = new BulletController(new Model(plane1.getModel().getX() + plane1.getModel().getWidth() / 2 - 6,
-                            plane1.getModel().getY() - 30, 12, 30), new View(Utils.loadImage("resources/bullet.png")));
-                    bulletControllers.add(bulletController);
+                    bulletControllerManager.spawn(plane1);
                 }
             }
 
@@ -112,14 +107,16 @@ public class GameWindow extends Frame implements Runnable {
         Graphics backBufferGraphics = backBuffer.getGraphics();
         backBufferGraphics.drawImage(background, 0, 0, 800, 600, null);
         plane1.draw(backBufferGraphics);
-        plane2.draw(backBufferGraphics);
         enemyControllerManager.draw(backBufferGraphics);
-        if (bulletControllers != null) {
-            for (BulletController bulletController : bulletControllers) {
-                bulletController.draw(backBufferGraphics);
-
-            }
+        bulletControllerManager.draw(backBufferGraphics);
+        Font font = new Font("Bauhaus 93",Font.BOLD,50);
+        backBufferGraphics.setFont(font);
+        backBufferGraphics.drawString(String.valueOf(PlaneController.score),30,550);
+        backBufferGraphics.drawString(String.valueOf(PlaneController.hp),700,550);
+        if (PlaneController.hp<=0) {
+            backBufferGraphics.drawString("Game Over",250,300);
         }
+
 
         g.drawImage(backBuffer, 0, 0, 800, 600, null);
     }
@@ -129,15 +126,16 @@ public class GameWindow extends Frame implements Runnable {
     public void run() {
         while (true) {
             try {
-                if (bulletControllers != null) {
-                    for (BulletController bulletController : bulletControllers
-                            ) {
-                        bulletController.run();
-                    }
-                }
+
+                bulletControllerManager.run();
+                BodyManager.instance.checkContact();
                 enemyControllerManager.run();
                 this.repaint();
+                if(PlaneController.hp<=0){
+                    return;
+                }
                 Thread.sleep(17);
+
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -145,6 +143,5 @@ public class GameWindow extends Frame implements Runnable {
 
     }
     // Design pattern: Factory;
-
 
 }

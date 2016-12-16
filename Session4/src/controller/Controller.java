@@ -18,6 +18,9 @@ public class Controller {
         this.view = view;
     }
 
+    public Model getModel() {
+        return model;
+    }
 
     public void run() {
 

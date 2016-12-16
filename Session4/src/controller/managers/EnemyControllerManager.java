@@ -14,7 +14,7 @@ public class EnemyControllerManager extends ControllerManager {
 
     private void spawn() {
         count++;
-        if (count == 30) {
+        if (count == 50) {
             Random r = new Random();
             this.controllers.add(EnemyPlaneController.createEnemy(r.nextInt(750), 0));
             count =0;

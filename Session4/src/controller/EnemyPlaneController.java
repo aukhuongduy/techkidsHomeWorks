@@ -1,5 +1,6 @@
 package controller;
 
+import controller.managers.BodyManager;
 import model.Model;
 import utils.Utils;
 import view.View;
@@ -11,11 +12,12 @@ import java.util.Vector;
 /**
  * Created by Khuong Duy on 12/12/2016.
  */
-public class EnemyPlaneController extends Controller {
+public class EnemyPlaneController extends Controller implements Body {
     private static final int SPEED = 2;
     private static final int WIDTH = 50;
     private static final int HEIGHT = 50;
     private int timeCounter;
+    private int hp = 3;
 
     private Vector<EnemyBulletController> enemyBulletControllers;
 
@@ -24,6 +26,7 @@ public class EnemyPlaneController extends Controller {
         super(model, view);
         enemyBulletControllers = new Vector<>();
         timeCounter = 0;
+        BodyManager.instance.register(this);
     }
 
     @Override
@@ -31,7 +34,7 @@ public class EnemyPlaneController extends Controller {
         model.move(0, SPEED);
         if (timeCounter > 50) {
             adddBullet();
-            timeCounter =0;
+            timeCounter = 0;
         }
         timeCounter++;
         for (EnemyBulletController e : enemyBulletControllers
@@ -62,5 +65,18 @@ public class EnemyPlaneController extends Controller {
 
     public Model getModel() {
         return model;
+    }
+
+    @Override
+    public void onContact(Body other) {
+        if (other instanceof BulletController) {
+            hp--;
+        }
+        if (hp <= 0) {
+            this.getModel().setAlive(false);
+            BodyManager.instance.remove();
+            PlaneController.score++;
+        }
+
     }
 }

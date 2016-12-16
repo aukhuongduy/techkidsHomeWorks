@@ -1,11 +1,14 @@
 package model;
 
+import java.awt.*;
+
 /**
  * Created by Khuong Duy on 12/7/2016.
  */
 public class Model {
     private int x, y;
     private int width, height;
+    private boolean isAlive =true;
 
     public Model(int x, int y, int width, int height) {
         this.x = x;
@@ -58,8 +61,30 @@ public class Model {
         return y + height;
     }
 
+    public int getTop(){
+        return y;
+    }
     public void move(int dx, int dy) {
         this.setX(this.getX() + dx);
         this.setY(this.getY() + dy);
+    }
+
+    public boolean isAlive() {
+        return isAlive;
+    }
+
+    public void setAlive(boolean alive) {
+        isAlive = alive;
+    }
+
+    public Rectangle getRect() {
+        return new Rectangle(x, y, width, height);
+    }
+
+    public boolean intersects(Model other) {
+        Rectangle rect1 = this.getRect();
+        Rectangle rect2 = other.getRect();
+
+        return rect1.intersects(rect2);
     }
 }
