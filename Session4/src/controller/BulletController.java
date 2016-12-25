@@ -1,11 +1,12 @@
 package controller;
 
+import controller.Enemies.EnemyPlaneController;
 import controller.managers.BodyManager;
 import model.Model;
 import utils.Utils;
+import view.SingleView;
 import view.View;
 
-import java.awt.*;
 import java.util.Vector;
 
 /**
@@ -30,8 +31,10 @@ public class BulletController extends Controller implements Body {
 
     }
     public static BulletController createBullet(PlaneController planeController){
+        Utils.playSound("resources/shoot-sound.wav",false);
         return new BulletController(new Model(planeController.getModel().getMidX() -WIDTH/2,
-                planeController.getModel().getTop(), WIDTH, HEIGHT), new View(Utils.loadImage("resources/bullet.png")));
+                planeController.getModel().getTop(), WIDTH, HEIGHT), new SingleView(Utils.loadImage("resources/bullet.png")));
+
     }
     @Override
     public void run() {

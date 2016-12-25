@@ -1,20 +1,14 @@
 import controller.*;
-import controller.managers.BodyManager;
-import controller.managers.BulletControllerManager;
-import controller.managers.EnemyControllerManager;
-import model.Model;
+import controller.managers.*;
 import utils.Utils;
 import view.View;
 
-import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 import java.util.Random;
 import java.util.Vector;
 
@@ -23,26 +17,24 @@ import java.util.Vector;
  */
 public class GameWindow extends Frame implements Runnable {
     BufferedImage backBuffer;
-    PlaneController plane1, plane2, enemy;
     Image background = Utils.loadImage("resources/background.png");
-    EnemyControllerManager enemyControllerManager;
-    BulletControllerManager bulletControllerManager;
+    GameSetting gameSetting;
+    Vector<BaseController> controllers;
     Random r = new Random();
 
 
     public GameWindow() {
-        setTitle("Game 1945");
 
-        setSize(800, 600);
-        setVisible(true);
+        configSetting();
 
-        KeySetting keySetting1 = new KeySetting(KeyEvent.VK_UP, KeyEvent.VK_DOWN, KeyEvent.VK_LEFT, KeyEvent.VK_RIGHT);
-        plane1 = PlaneController.createPlane(450, 450);//day anh
-        plane1.setKeySetting(keySetting1);
-        backBuffer = new BufferedImage(800, 600, BufferedImage.TYPE_INT_ARGB);
-        bulletControllerManager = new BulletControllerManager();
-        enemyControllerManager = new EnemyControllerManager();
+        controllers =new Vector<>();
 
+        controllers.add(ControllerManager.explosion);
+        controllers.add(EnemyControllerManager.enemyControllerManager);
+        controllers.add(ItemController.itemController);
+        controllers.add(PlaneController.instancePlane);
+
+        backBuffer = new BufferedImage(gameSetting.getWidth(), gameSetting.getHeight(), BufferedImage.TYPE_INT_ARGB);
 
         setLocationRelativeTo(null);
         addWindowListener(new WindowListener() {
@@ -89,9 +81,10 @@ public class GameWindow extends Frame implements Runnable {
 
             @Override
             public void keyPressed(KeyEvent e) {
-                plane1.keyPressed(e);
+                PlaneController.instancePlane.keyPressed(e);
                 if (e.getKeyCode() == KeyEvent.VK_SPACE) {
-                    bulletControllerManager.spawn(plane1);
+                    PlaneController.instancePlane.bulletControllers.add(BulletController.createBullet(PlaneController.instancePlane));
+
                 }
             }
 
@@ -102,22 +95,30 @@ public class GameWindow extends Frame implements Runnable {
         });
     }
 
+    private void configSetting() {
+        setTitle("Game 1945");
+        gameSetting = GameSetting.instance;
+        setSize(gameSetting.getWidth(), gameSetting.getHeight());
+        setVisible(true);
+        KeySetting keySetting1 = new KeySetting(KeyEvent.VK_UP, KeyEvent.VK_DOWN, KeyEvent.VK_LEFT, KeyEvent.VK_RIGHT);
+        PlaneController.instancePlane.setKeySetting(keySetting1);
+
+    }
+
     @Override
     public void update(Graphics g) {
         Graphics backBufferGraphics = backBuffer.getGraphics();
         backBufferGraphics.drawImage(background, 0, 0, 800, 600, null);
-        plane1.draw(backBufferGraphics);
-        enemyControllerManager.draw(backBufferGraphics);
-        bulletControllerManager.draw(backBufferGraphics);
+        for (BaseController controller : controllers) {
+            controller.draw(backBufferGraphics);
+        }
         Font font = new Font("Bauhaus 93",Font.BOLD,50);
         backBufferGraphics.setFont(font);
-        backBufferGraphics.drawString(String.valueOf(PlaneController.score),30,550);
+        backBufferGraphics.drawString(String.valueOf(PlaneController.instancePlane.lives),30,550);
         backBufferGraphics.drawString(String.valueOf(PlaneController.hp),700,550);
-        if (PlaneController.hp<=0) {
+        if(Utils.isEndGame()){
             backBufferGraphics.drawString("Game Over",250,300);
         }
-
-
         g.drawImage(backBuffer, 0, 0, 800, 600, null);
     }
 
@@ -126,16 +127,16 @@ public class GameWindow extends Frame implements Runnable {
     public void run() {
         while (true) {
             try {
-
-                bulletControllerManager.run();
+                for (BaseController controller : controllers) {
+                    controller.run();
+                }
                 BodyManager.instance.checkContact();
-                enemyControllerManager.run();
                 this.repaint();
-                if(PlaneController.hp<=0){
+                if(Utils.isEndGame()){
+                    this.repaint();
                     return;
                 }
                 Thread.sleep(17);
-
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

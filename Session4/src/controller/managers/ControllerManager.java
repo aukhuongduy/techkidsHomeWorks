@@ -9,8 +9,10 @@ import java.util.Vector;
 /**
  * Created by Khuong Duy on 12/14/2016.
  */
-public class ControllerManager {
+public class ControllerManager implements BaseController{
     protected Vector<Controller> controllers;
+
+    public static final ControllerManager explosion = new ControllerManager();
 
     public ControllerManager(){
         controllers = new Vector<>();
@@ -31,6 +33,7 @@ public class ControllerManager {
             if(controller.getModel().isAlive()==false ){
                 iterator.remove();
             }
+
         }
     }
     public void add(Controller controller){

@@ -1,6 +1,7 @@
 package controller.managers;
 
 import controller.Body;
+import controller.PlaneController;
 import model.Model;
 
 import java.util.Iterator;
@@ -12,9 +13,11 @@ import java.util.Vector;
 public class BodyManager {
     private Vector<Body> bodies;
     public static final  BodyManager instance = new BodyManager();
+
     private  BodyManager(){
         bodies = new Vector<>();
     }
+
 
     public void register(Body body){
         this.bodies.add(body);
