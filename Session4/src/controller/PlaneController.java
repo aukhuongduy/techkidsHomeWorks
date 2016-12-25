@@ -71,6 +71,7 @@ public class PlaneController extends Controller implements Body, BaseController 
 
         }
         if (instancePlane.hp <= 0) {
+            model.setAlive(false);
             if(count==0){
                 distroy();
             }
@@ -80,6 +81,8 @@ public class PlaneController extends Controller implements Body, BaseController 
                     hp = 10;
                     model.setX(350);
                     model.setY(500);
+                    model.setAlive(true);
+                    BodyManager.instance.register(PlaneController.instancePlane);
                 }
                 lives--;
                 count = 0;
@@ -89,7 +92,7 @@ public class PlaneController extends Controller implements Body, BaseController 
 
     public void keyPressed(KeyEvent event) {
         int keyCode = event.getKeyCode();
-        if (keySetting != null) {
+        if (keySetting != null && model.isAlive()) {
             if (keyCode == keySetting.getKeyUp()) {
                 model.move(0, -SPEED);
             } else if (keyCode == keySetting.getKeyDown()) {

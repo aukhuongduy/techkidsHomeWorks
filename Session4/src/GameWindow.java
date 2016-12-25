@@ -82,7 +82,7 @@ public class GameWindow extends Frame implements Runnable {
             @Override
             public void keyPressed(KeyEvent e) {
                 PlaneController.instancePlane.keyPressed(e);
-                if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+                if (e.getKeyCode() == KeyEvent.VK_SPACE && PlaneController.instancePlane.getModel().isAlive()) {
                     PlaneController.instancePlane.bulletControllers.add(BulletController.createBullet(PlaneController.instancePlane));
 
                 }
